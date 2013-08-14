@@ -2,21 +2,32 @@
 # requires full accessable first_name and last_name attributes
 module FullNameSplitter
 
-  PREFIXES = %w(de da la du del dei vda. dello della degli delle van von der den heer ten ter vande vanden vander voor ver aan mc ben).freeze
+  # suffixes
+  NAME_SUFFIXES = ["jr", "jr.", "sr", "sr.", "phd", "md"]
+
+  # last_name prefixes with different culture
+  LAST_NAME_PREFIXES = %w(de da la du del dei vda. dello della degli delle van von der den heer ten ter vande vanden vander voor ver aan mc ben).freeze
+
+  # profanity regexp
+  PROFANITY_REGEXP = /(fuck)|((^|\s+)(ass|asshole|bitch|cunt|jerkoff|pussy|penis|shit|slut|tit|whore|bullshit)(\s+|$))/i
+
+  INVALID_CHAR_REGEXP = /[^A-Za-z.\-\'\s\,]+/
 
   class Splitter
     
     def initialize(full_name)
       @full_name  = full_name
       @first_name = []
+      @middle_name = []
       @last_name  = []
+      @suffix = []
       split!
     end
 
     def split!
       @units = @full_name.split(/\s+/)
       while @unit = @units.shift do
-        if prefix? or with_apostrophe? or (first_name? and last_unit? and not initial?)
+        if last_name_prefix? or with_apostrophe? or (first_name? and last_unit? and not initial?)
           @last_name << @unit and break
         else
           @first_name << @unit
@@ -24,11 +35,32 @@ module FullNameSplitter
       end
       @last_name += @units
 
-      adjust_exceptions!
+      #handle exceptions for different cultures
+      #adjust_exceptions!
+
+      # if first_name is longer than 2 words, use the first word as first_name and the rest as middle_name
+      if @first_name.size >= 2
+        first_word = []
+        first_word << @first_name.shift()
+        @middle_name = @first_name
+        @first_name = first_word
+      end
+
+      # if have suffix
+      if NAME_SUFFIXES.include?(@last_name.last.downcase)
+        @suffix << @last_name.pop()
+        @last_name << @middle_name.pop() unless last_name
+      end
+
     end
+
 
     def first_name
       @first_name.empty? ? nil : @first_name.join(' ')
+    end
+
+    def middle_name
+      @middle_name.empty? ? nil : @middle_name.join(' ')
     end
 
     def last_name
@@ -37,8 +69,8 @@ module FullNameSplitter
 
     private
 
-    def prefix?
-      PREFIXES.include?(@unit.downcase)
+    def last_name_prefix?
+      LAST_NAME_PREFIXES.include?(@unit.downcase)
     end
 
     # M or W.
@@ -97,7 +129,7 @@ module FullNameSplitter
         map{ |u| u.empty? ? nil : u }   # but it should be [nil, "van helsing"] by lib convection
     else
       splitter = Splitter.new(name)
-      [splitter.first_name, splitter.last_name]
+      [splitter.first_name, splitter.middle_name, splitter.last_name]
     end
   end
   
