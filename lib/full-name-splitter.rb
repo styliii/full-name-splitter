@@ -2,6 +2,9 @@
 # requires full accessable first_name and last_name attributes
 module FullNameSplitter
 
+  # prefixes
+  NAME_PREFIXES = ["mr", "ms", "miss", "mrs", "dr", "sir", "phd", "prof", "gen", "rep", "st"]
+
   # suffixes
   NAME_SUFFIXES = ["jr", "jr.", "sr", "sr.", "phd", "phd.", "md", "md." "ii", "iii", "iv"]
 
@@ -17,12 +20,25 @@ module FullNameSplitter
       @first_name = []
       @middle_name = []
       @last_name  = []
+      @prefix = []
       @suffix = []
       split!
     end
 
     def split!
+
+      # deals with comma, eg. Smith, John => John Smith
+      tokens = @full_name.split(',')
+      if tokens.size == 2
+        @full_name = (tokens[1] + ' ' + tokens[0]).lstrip
+      end
+
       @units = @full_name.split(/\s+/)
+      # if have prefix
+      if NAME_PREFIXES.include?(@units.first.downcase)
+        @prefix << @units.shift()
+      end
+
       # if have suffix
       if NAME_SUFFIXES.include?(@units.last.downcase)
         @suffix << @units.pop()
@@ -60,6 +76,10 @@ module FullNameSplitter
 
     def last_name
       @last_name.empty? ? nil : @last_name.join(' ')
+    end
+
+    def prefix
+      @prefix.empty? ? nil : @prefix.join(' ')
     end
 
     def suffix
@@ -122,15 +142,10 @@ module FullNameSplitter
   
   def split(name)
     name = name.to_s.strip.gsub(/\s+/, ' ')
-    
-    #if name.include?(',')
-    #  name.
-    #    split(/\s*,\s*/, 2).            # ",van  helsing" produces  ["", "van helsing"]
-    #    map{ |u| u.empty? ? nil : u }   # but it should be [nil, "van helsing"] by lib convection
-    #else
-      splitter = Splitter.new(name)
-      [splitter.first_name, splitter.middle_name, splitter.last_name, splitter.suffix]
-    #end
+
+    splitter = Splitter.new(name)
+    [splitter.first_name, splitter.middle_name, splitter.last_name, splitter.prefix, splitter.suffix]
+
   end
   
   module_function :split
