@@ -3,13 +3,10 @@
 module FullNameSplitter
 
   # suffixes
-  NAME_SUFFIXES = ["jr", "jr.", "sr", "sr.", "phd", "md"]
+  NAME_SUFFIXES = ["jr", "jr.", "sr", "sr.", "phd", "phd.", "md", "md." "ii", "iii", "iv"]
 
   # last_name prefixes with different culture
   LAST_NAME_PREFIXES = %w(de da la du del dei vda. dello della degli delle van von der den heer ten ter vande vanden vander voor ver aan mc ben).freeze
-
-  # profanity regexp
-  PROFANITY_REGEXP = /(fuck)|((^|\s+)(ass|asshole|bitch|cunt|jerkoff|pussy|penis|shit|slut|tit|whore|bullshit)(\s+|$))/i
 
   INVALID_CHAR_REGEXP = /[^A-Za-z.\-\'\s\,]+/
 
@@ -26,6 +23,11 @@ module FullNameSplitter
 
     def split!
       @units = @full_name.split(/\s+/)
+      # if have suffix
+      if NAME_SUFFIXES.include?(@units.last.downcase)
+        @suffix << @units.pop()
+      end
+
       while @unit = @units.shift do
         if last_name_prefix? or with_apostrophe? or (first_name? and last_unit? and not initial?)
           @last_name << @unit and break
@@ -46,14 +48,7 @@ module FullNameSplitter
         @first_name = first_word
       end
 
-      # if have suffix
-      if NAME_SUFFIXES.include?(@last_name.last.downcase)
-        @suffix << @last_name.pop()
-        @last_name << @middle_name.pop() unless last_name
-      end
-
     end
-
 
     def first_name
       @first_name.empty? ? nil : @first_name.join(' ')
@@ -66,6 +61,11 @@ module FullNameSplitter
     def last_name
       @last_name.empty? ? nil : @last_name.join(' ')
     end
+
+    def suffix
+      @suffix.empty? ? nil : @suffix.join(' ')
+    end
+
 
     private
 
@@ -111,11 +111,11 @@ module FullNameSplitter
   end
   
   def full_name
-    [first_name, last_name].compact.join(' ')
+    [first_name, middle_name, last_name].compact.join(' ')
   end
   
   def full_name=(name)
-    self.first_name, self.last_name = split(name)
+    self.first_name, self.middle_name, self.last_name = split(name)
   end
   
   private 
@@ -123,14 +123,14 @@ module FullNameSplitter
   def split(name)
     name = name.to_s.strip.gsub(/\s+/, ' ')
     
-    if name.include?(',')
-      name.
-        split(/\s*,\s*/, 2).            # ",van  helsing" produces  ["", "van helsing"]
-        map{ |u| u.empty? ? nil : u }   # but it should be [nil, "van helsing"] by lib convection
-    else
+    #if name.include?(',')
+    #  name.
+    #    split(/\s*,\s*/, 2).            # ",van  helsing" produces  ["", "van helsing"]
+    #    map{ |u| u.empty? ? nil : u }   # but it should be [nil, "van helsing"] by lib convection
+    #else
       splitter = Splitter.new(name)
-      [splitter.first_name, splitter.middle_name, splitter.last_name]
-    end
+      [splitter.first_name, splitter.middle_name, splitter.last_name, splitter.suffix]
+    #end
   end
   
   module_function :split
