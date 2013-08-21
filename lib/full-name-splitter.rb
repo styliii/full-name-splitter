@@ -35,12 +35,12 @@ module FullNameSplitter
 
       @units = @full_name.split(/\s+/)
       # if have prefix
-      if NAME_PREFIXES.include?(@units.first.downcase)
+      if @units.first && NAME_PREFIXES.include?(@units.first.downcase)
         @prefix << @units.shift()
       end
 
       # if have suffix
-      if NAME_SUFFIXES.include?(@units.last.downcase)
+      if @units.last && NAME_SUFFIXES.include?(@units.last.downcase)
         @suffix << @units.pop()
       end
 
