@@ -37,7 +37,6 @@ Gem::Specification.new do |s|
   s.test_files = [
     "spec/lib/full-name-splitter_spec.rb",
      "spec/spec_helper.rb",
-     "examples/generate_usernames.rb"
   ]
 
   if s.respond_to? :specification_version then
