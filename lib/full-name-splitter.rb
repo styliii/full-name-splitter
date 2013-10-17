@@ -3,7 +3,8 @@
 module FullNameSplitter
 
   # prefixes
-  NAME_PREFIXES = ["mr", "ms", "miss", "mrs", "dr", "sir", "phd", "prof", "gen", "rep", "st"]
+  NAME_PREFIXES = ["mr", "ms", "miss", "mrs", "dr", "sir", "phd", "prof", "gen", "rep", "st",
+                   "mr.", "ms.", "miss.", "mrs.", "dr.", "sir.", "phd.", "prof.", "gen.", "rep.", "st."]
 
   # suffixes
   NAME_SUFFIXES = ["jr", "jr.", "sr", "sr.", "phd", "phd.", "md", "md." "ii", "iii", "iv"]
