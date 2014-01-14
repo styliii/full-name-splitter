@@ -7,7 +7,7 @@ module FullNameSplitter
                    "mr.", "ms.", "miss.", "mrs.", "dr.", "sir.", "phd.", "prof.", "gen.", "rep.", "st."]
 
   # suffixes
-  NAME_SUFFIXES = ["jr", "jr.", "sr", "sr.", "phd", "phd.", "md", "md." "ii", "iii", "iv"]
+  NAME_SUFFIXES = ["jr", "jr.", "sr", "sr.", "phd", "phd.", "md", "md.", "ii", "iii", "iv"]
 
   # last_name prefixes with different culture
   LAST_NAME_PREFIXES = %w(de da la du del dei vda. dello della degli delle van von der den heer ten ter vande vanden vander voor ver aan mc ben).freeze
